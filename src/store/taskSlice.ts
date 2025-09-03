@@ -19,12 +19,20 @@ export const taskListSlice = createSlice({
 	initialState,
 	reducers: {
 		addTask: (state, action: PayloadAction<Task['header']>) => {
+			const incomplete = state.list.reduce(
+				(acc, target) => acc + (target.done ? 0 : 1),
+				0
+			)
+			if (incomplete >= 10) {
+				return
+			}
 			state.list.push({
 				id: crypto.randomUUID(),
 				header: action.payload,
 				done: false,
 			})
 		},
+
 		completeTask: (state, action: PayloadAction<Task['id']>) => {
 			const task = state.list.find(x => x.id === action.payload)
 
@@ -78,6 +86,9 @@ export const completeCount = (state: RootState) =>
 
 export const uncompleteCount = (state: RootState) =>
 	state.taskList.list.filter(x => !x.done).length
+
+export const canAddTaskSelector = (state: RootState) =>
+	uncompleteCount(state) < 10
 
 export const getNotification = (state: RootState) => state.taskList.notification
 
